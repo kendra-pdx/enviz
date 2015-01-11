@@ -16,13 +16,19 @@ lazy val serverCommon = project.in(file("server-common"))
     name := "server-common",
     libraryDependencies ++= Seq(
       Modules.akka("actor"),
-      Modules.spray("routing")
+      Modules.spray("routing"),
+      Modules.slf4j_api
     )
   )
 
 lazy val uiServer =  project.in(file("ui-server"))
   .settings(common: _*)
-  .settings(name := "ui-server")
+  .settings(
+    name := "ui-server",
+    libraryDependencies ++= Seq(
+      Modules.slf4j_api
+    )
+  )
   .dependsOn(serverCommon)
 
 lazy val sseServer = project.in(file("sse-server"))
@@ -35,22 +41,32 @@ lazy val enviz =  project.in(file("."))
   .settings(
     name := "enviz",
     libraryDependencies ++= Seq(
+      Modules.akka("slf4j"),
       Modules.spray("can"),
-      Modules.spray("routing")
-    ))
+      Modules.spray("routing")),
+    libraryDependencies ++= Modules.logging)
   .aggregate(dropsJS, uiServer, sseServer)
   .dependsOn(uiServer, sseServer)
 
 lazy val Modules = new {
   def spray(name: String) = "io.spray" %% s"spray-$name" % "1.3.2"
   def akka(name: String) = "com.typesafe.akka" %% s"akka-$name" % "2.3.8"
+  def slf4j(name: String) = "org.slf4j" % s"slf4j-$name" % "1.7.10"
+
+  lazy val slf4j_api = slf4j("api")
+  lazy val logback = "ch.qos.logback" % "logback-classic" % "1.1.2"
+
+  lazy val logging =
+    slf4j_api :: logback :: Nil
 }
 
 lazy val gatherJavaScripts = taskKey[Seq[File]]("get the output of building js")
 
 (gatherJavaScripts in uiServer) := {
   (scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys.fullOptJS in (dropsJS, Compile)).value
-  ((crossTarget in dropsJS).value ** "*.js").get
+  (Seq.empty[File] /: List("*.js", "*.map")) { (files, pattern) ⇒
+    files ++ ((crossTarget in dropsJS).value ** pattern).get
+  }
 }
 
 (resourceGenerators in (uiServer, Compile)) += {

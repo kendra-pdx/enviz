@@ -1,8 +1,32 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <title>EnViz</title>
+    <title>Event Visualization</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<p>It worked.</p>
+
+<div id="canvas">
+    <!-- draw the drops world here -->
+</div>
+
+<script type="text/javascript" src="drops-js-opt.js"></script>
+
+<canvas id="drops" height="600" width="800">
+</canvas>
+
+<script type="text/javascript">
+    var world = new DropsWorld("drops");
+    world.start();
+    world.startRaining(150, 4);
+
+</script>
+
+<div>
+    <button onclick="javascript:world.start()">START!</button>
+    <button onclick="javascript:world.stop()">STOP!</button>
+    <button onclick="javascript:world.createDrop()">DRIP!</button>
+</div>
+<hr/>
 </body>
 </html>

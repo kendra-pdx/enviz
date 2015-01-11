@@ -52,7 +52,7 @@ object DropsWorld {
   }
 }
 
-@JSExport
+@JSExport("DropsWorld")
 class DropsWorld(canvasId: String) extends World {
   import DropsWorld._
 

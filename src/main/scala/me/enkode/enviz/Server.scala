@@ -11,7 +11,7 @@ object Server extends App with SimpleRoutingApp {
   val sse = new ServerSideEventRoutes
   val ui = new UserInterfaceRoutes
 
-  val routes = List(ui, sse)
+  val routes = List(sse, ui)
     .map(_.routes)
     .reduce(_ ++ _)
     .reduce(_ ~ _)

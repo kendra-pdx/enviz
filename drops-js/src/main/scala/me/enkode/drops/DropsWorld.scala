@@ -1,9 +1,10 @@
 package me.enkode.drops
 
 import me.enkode.physics._
+
 import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSExportDescendentObjects, JSExport}
-import js.Dynamic.global
+import scala.scalajs.js.Dynamic.global
+import scala.scalajs.js.annotation.JSExport
 
 object DropsWorld {
   val fillBlack = Drawable.FillStyle("black")
@@ -54,7 +55,7 @@ object DropsWorld {
 
 @JSExport("DropsWorld")
 class DropsWorld(canvasId: String) extends World {
-  import DropsWorld._
+  import me.enkode.drops.DropsWorld._
 
   override def frameRate: Int = 100
 

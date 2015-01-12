@@ -16,6 +16,7 @@ lazy val serverCommon = project.in(file("server-common"))
     name := "server-common",
     libraryDependencies ++= Seq(
       Modules.akka("actor"),
+      Modules.akka("contrib"),
       Modules.spray("routing"),
       Modules.slf4j_api
     )
@@ -33,7 +34,13 @@ lazy val uiServer =  project.in(file("ui-server"))
 
 lazy val sseServer = project.in(file("sse-server"))
   .settings(common: _*)
-  .settings(name := "sse-server")
+  .settings(
+    name := "sse-server",
+    libraryDependencies ++= Seq(
+      Modules.akka("contrib"),
+      Modules.spray("httpx"),
+      Modules.spray_json
+    ))
   .dependsOn(serverCommon)
 
 lazy val enviz =  project.in(file("."))
@@ -52,6 +59,8 @@ lazy val Modules = new {
   def spray(name: String) = "io.spray" %% s"spray-$name" % "1.3.2"
   def akka(name: String) = "com.typesafe.akka" %% s"akka-$name" % "2.3.8"
   def slf4j(name: String) = "org.slf4j" % s"slf4j-$name" % "1.7.10"
+
+  lazy val spray_json = "io.spray" %%  "spray-json" % "1.3.1"
 
   lazy val slf4j_api = slf4j("api")
   lazy val logback = "ch.qos.logback" % "logback-classic" % "1.1.2"

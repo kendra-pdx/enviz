@@ -4,10 +4,12 @@ import akka.actor.ActorSystem
 import me.enkode.logging.LazyLogging
 import me.enkode.server.common.Routes
 import org.slf4j.LoggerFactory
-import spray.routing.Route
+import spray.routing.{Directives, Route}
 
-class UserInterfaceRoutes(implicit actorSystem: ActorSystem) extends Routes with LazyLogging {
-  import spray.routing.Directives._
+class UserInterfaceRoutes(implicit actorSystem: ActorSystem)
+  extends Routes
+  with Directives
+  with LazyLogging {
 
   val logger = LoggerFactory.getLogger(classOf[UserInterfaceRoutes])
 
@@ -16,7 +18,7 @@ class UserInterfaceRoutes(implicit actorSystem: ActorSystem) extends Routes with
   }
 
   def resource = path(Segment) { name ⇒
-    debug(s"getting $name")
+    debug(s"GET $name")
     getFromResource(name)
   }
 

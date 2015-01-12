@@ -1,26 +1,38 @@
 package me.enkode.server.sse
 
-import akka.actor.{ActorLogging, Actor, Props}
+import akka.actor.{Cancellable, Actor, ActorLogging, Props}
+import akka.contrib.pattern.DistributedPubSubExtension
+import akka.contrib.pattern.DistributedPubSubMediator.{Subscribe, SubscribeAck, Unsubscribe, UnsubscribeAck}
 import akka.event.LoggingReceive
+import akka.io.Tcp.PeerClosed
+import me.enkode.server.common.EventSource.Event
 import spray.http.CacheDirectives.`no-cache`
-import spray.http.HttpHeaders.{RawHeader, Connection, `Cache-Control`}
+import spray.http.HttpHeaders.{Connection, RawHeader, `Cache-Control`}
 import spray.http.StatusCodes._
 import spray.http._
+import spray.json.DefaultJsonProtocol
 import spray.routing.RequestContext
 
 import scala.concurrent.duration._
 
 object StreamActor {
-  def props(ctx: RequestContext) = Props(new StreamActor(ctx))
+  def props(ctx: RequestContext, streamId: String) = Props(new StreamActor(ctx, streamId))
 
   val terminate = "\r\n\r\n"
 
-  case class SSEComment(msg: String) {
-    override def toString = ": " + msg + terminate
+  trait SSEEvent {
+    def sseContent: String
+  }
+  case class SSEComment(msg: String) extends SSEEvent {
+    override def sseContent = ": " + msg + terminate
+  }
+
+  case class SSEData(message: String) extends SSEEvent{
+    override def sseContent: String = message + terminate
   }
 
   def initResponse(comment: String): HttpResponse = {
-    val entity = HttpEntity(contentType = MediaType.custom("text/event-stream"), SSEComment(comment).toString)
+    val entity = HttpEntity(contentType = MediaType.custom("text/event-stream"), SSEComment(comment).sseContent)
     val headers = List(
       `Cache-Control`(`no-cache`),
       `Connection`("Keep-Alive"),
@@ -31,18 +43,33 @@ object StreamActor {
   sealed trait Protocol
   object Timeout extends Protocol
   object Close extends Protocol
-  case class Send(message: String) extends Protocol
+  case class SendData(message: SSEEvent) extends Protocol
 
   type ProtocolReceive = Protocol ⇒ Unit
 }
 
-class StreamActor(requestContext: RequestContext) extends Actor with ActorLogging {
-  import StreamActor._
+class StreamActor(
+  requestContext: RequestContext,
+  topic: String,
+  keepAliveFrequency: FiniteDuration = 5.seconds)
+  extends Actor
+  with ActorLogging
+  with DefaultJsonProtocol {
+  import me.enkode.server.sse.StreamActor._
+  import spray.json._
 
-  import context.dispatcher
+  val mediator = DistributedPubSubExtension(context.system).mediator
+  var keepAlives: Option[Cancellable] = None
+  implicit val eventFormat = jsonFormat2(Event)
 
   override def receive: Receive = LoggingReceive {
-    case p: Protocol ⇒ protocol(p)
+    case p: Protocol             ⇒ protocol(p)
+
+    case event: Event            ⇒ self forward SendData(SSEData(event.toJson.toString()))
+    case PeerClosed              ⇒ self forward Close
+
+    case SubscribeAck(subscribe) ⇒ log.debug("subscribe ack: {}", subscribe)
+    case UnsubscribeAck(_)       ⇒ context stop self
   }
 
   def send(response: AnyRef) = {
@@ -51,18 +78,20 @@ class StreamActor(requestContext: RequestContext) extends Actor with ActorLoggin
 
   def protocol: ProtocolReceive = {
     case Timeout | Close⇒
-      send(ChunkedMessageEnd)
-      context stop self
+      keepAlives map { _.cancel() }
+      keepAlives = None
+      mediator ! Unsubscribe(topic, self)
 
-    case Send(message) ⇒
-      send(MessageChunk(message + terminate))
-      context.system.scheduler.scheduleOnce(2.seconds, self, Send("test"))
-
+    case SendData(sseEvent) ⇒
+      send(MessageChunk(sseEvent.sseContent))
   }
 
   override def preStart(): Unit = {
+    import context.dispatcher
+    keepAlives = Some(context.system.scheduler
+      .schedule(keepAliveFrequency, keepAliveFrequency, self, SendData(SSEComment("keep-alive")))
+    )
     send(ChunkedResponseStart(initResponse("begin stream")))
-    context.system.scheduler.scheduleOnce(2.seconds, self, Send("test"))
-    context.system.scheduler.scheduleOnce(6.seconds, self, Timeout)
+    mediator ! Subscribe(topic, self)
   }
 }

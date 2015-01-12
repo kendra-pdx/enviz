@@ -1,37 +1,45 @@
 package me.enkode.server.sse
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.ActorSystem
+import me.enkode.server.common.EventSource.Event
 import me.enkode.server.common.{ActorNaming, Routes}
-import spray.http.CacheDirectives.`no-cache`
-import spray.http.HttpHeaders.{Connection, RawHeader, `Cache-Control`}
-import spray.http.StatusCodes._
-import spray.http._
-import spray.routing.{Directives, RequestContext, Route}
+import spray.http.StatusCodes
+import spray.httpx.SprayJsonSupport
+import spray.json.DefaultJsonProtocol
+import spray.routing.{Directives, Route}
 
 object ServerSideEventRoutes {
-  object StreamActorNaming extends ActorNaming("stream")
+  object StreamActorNaming extends ActorNaming("stream") with ActorNaming.SequentialNamingStrategy
+
   def nextStreamActorName() = StreamActorNaming.next()
 }
 
-abstract class ServerSideEventRoutes
+abstract class ServerSideEventRoutes(val actorSystem: ActorSystem)
   extends Routes
   with Directives
-  with ServerSideEvents {
+  with ServerSideEvents
+  with SprayJsonSupport
+  with DefaultJsonProtocol {
   import me.enkode.server.sse.ServerSideEventRoutes._
 
+  implicit val eventFormat = jsonFormat2(Event)
+
   def stream(streamId: String): Route = { ctx ⇒
-    actorSystem.actorOf(StreamActor.props(ctx), nextStreamActorName())
+    actorSystem.actorOf(StreamActor.props(ctx, streamId), nextStreamActorName())
   }
 
-  def sse_get: Route = path("sse") {
-    get {
-      complete("OK")
+  def subscribe: Route = path("stream" / Segment) { topic ⇒
+    get(stream(topic))
+  }
+
+  def publish: Route = path("stream" / Segment) { topic ⇒
+    post {
+      entity(as[Event]) { event ⇒
+        publish(topic, event)
+        complete(StatusCodes.Accepted)
+      }
     }
   }
 
-  def get_stream: Route = path("stream" / Segment) { streamId ⇒
-    get(stream(streamId))
-  }
-
-  override def routes = sse_get :: get_stream :: Nil
+  override def routes = subscribe :: publish :: Nil
 }

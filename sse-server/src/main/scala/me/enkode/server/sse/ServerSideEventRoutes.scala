@@ -1,15 +1,18 @@
 package me.enkode.server.sse
 
 import akka.actor.ActorSystem
-import me.enkode.server.common.EventSource.Event
-import me.enkode.server.common.{ActorNaming, Routes}
 import spray.http.StatusCodes
 import spray.httpx.SprayJsonSupport
 import spray.json.DefaultJsonProtocol
 import spray.routing.{Directives, Route}
 
+import me.enkode.server.common.EventSource.Event
+import me.enkode.server.common.{ActorNaming, Routes}
+
 object ServerSideEventRoutes {
-  object StreamActorNaming extends ActorNaming("stream") with ActorNaming.SequentialNamingStrategy
+
+  object StreamActorNaming extends ActorNaming("stream")
+  with ActorNaming.SequentialNamingStrategy
 
   def nextStreamActorName() = StreamActorNaming.next()
 }
@@ -20,6 +23,7 @@ abstract class ServerSideEventRoutes(val actorSystem: ActorSystem)
   with ServerSideEvents
   with SprayJsonSupport
   with DefaultJsonProtocol {
+
   import me.enkode.server.sse.ServerSideEventRoutes._
 
   implicit val eventFormat = jsonFormat2(Event)

@@ -1,10 +1,9 @@
 package me.enkode.drops
 
-import me.enkode.physics._
-
-import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
 import scala.scalajs.js.annotation.JSExport
+
+import me.enkode.physics._
 
 object DropsWorld {
   val fillBlack = Drawable.FillStyle("black")

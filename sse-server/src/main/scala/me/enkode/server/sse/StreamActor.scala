@@ -1,11 +1,12 @@
 package me.enkode.server.sse
 
-import akka.actor.{Cancellable, Actor, ActorLogging, Props}
+import scala.concurrent.duration._
+
+import akka.actor.{Actor, ActorLogging, Cancellable, Props}
 import akka.contrib.pattern.DistributedPubSubExtension
 import akka.contrib.pattern.DistributedPubSubMediator.{Subscribe, SubscribeAck, Unsubscribe, UnsubscribeAck}
 import akka.event.LoggingReceive
 import akka.io.Tcp.PeerClosed
-import me.enkode.server.common.EventSource.Event
 import spray.http.CacheDirectives.`no-cache`
 import spray.http.HttpHeaders.{Connection, RawHeader, `Cache-Control`}
 import spray.http.StatusCodes._
@@ -13,7 +14,7 @@ import spray.http._
 import spray.json.DefaultJsonProtocol
 import spray.routing.RequestContext
 
-import scala.concurrent.duration._
+import me.enkode.server.common.EventSource.Event
 
 object StreamActor {
   def props(ctx: RequestContext, streamId: String) = Props(new StreamActor(ctx, streamId))
@@ -55,8 +56,9 @@ class StreamActor(
   extends Actor
   with ActorLogging
   with DefaultJsonProtocol {
-  import me.enkode.server.sse.StreamActor._
   import spray.json._
+
+import me.enkode.server.sse.StreamActor._
 
   val mediator = DistributedPubSubExtension(context.system).mediator
   var keepAlives: Option[Cancellable] = None

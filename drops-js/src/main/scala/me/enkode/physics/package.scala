@@ -16,6 +16,6 @@ package object physics {
   }
 
   import scala.language.implicitConversions
-  implicit def intTupleToVector(t: (Int, Int)) = t.toVector
-  implicit def doubleTupleToVector(t: (Double, Double)) = t.toVector
+  implicit def intTupleToVector(t: (Int, Int)): Vector = t.toVector
+  implicit def doubleTupleToVector(t: (Double, Double)): Vector = t.toVector
 }

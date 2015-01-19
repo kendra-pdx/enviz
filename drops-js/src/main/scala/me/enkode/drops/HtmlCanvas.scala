@@ -1,15 +1,15 @@
 package me.enkode.drops
 
-import me.enkode.physics.{Drawable, Canvas}
+import me.enkode.physics.{Canvas, Drawable}
 
 class HtmlCanvas(id: String) extends Canvas {
   import scala.scalajs.js
-  import js.Dynamic._
+  import scala.scalajs.js.Dynamic._
 
   val canvas = global.document.getElementById(id)
   val context = canvas.getContext("2d")
-  val height = canvas.height.asInstanceOf[js.Number].toDouble
-  val width = canvas.width.asInstanceOf[js.Number].toDouble
+  val height = canvas.height.asInstanceOf[js.Number]
+  val width = canvas.width.asInstanceOf[js.Number]
 
   println(s"$width, $height")
   override def clear(): Unit = {

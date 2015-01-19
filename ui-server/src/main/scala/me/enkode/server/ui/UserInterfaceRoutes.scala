@@ -1,10 +1,12 @@
 package me.enkode.server.ui
 
 import akka.actor.ActorSystem
+import spray.routing.{Directives, Route}
+
+import org.slf4j.LoggerFactory
+
 import me.enkode.logging.LazyLogging
 import me.enkode.server.common.Routes
-import org.slf4j.LoggerFactory
-import spray.routing.{Directives, Route}
 
 class UserInterfaceRoutes(implicit actorSystem: ActorSystem)
   extends Routes

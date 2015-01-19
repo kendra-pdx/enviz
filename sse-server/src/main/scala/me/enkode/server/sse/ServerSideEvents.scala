@@ -1,6 +1,7 @@
 package me.enkode.server.sse
 
 import akka.actor.ActorSystem
+
 import me.enkode.logging.LazyLogging
 import me.enkode.server.common.EventSource
 import me.enkode.server.common.EventSource.Event

@@ -3,6 +3,7 @@ package me.enkode.server.common
 import akka.actor.ActorSystem
 import akka.contrib.pattern.DistributedPubSubExtension
 import akka.contrib.pattern.DistributedPubSubMediator.Publish
+
 import me.enkode.logging.LazyLogging
 
 object EventSource {

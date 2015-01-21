@@ -3,13 +3,11 @@ package me.enkode.drops
 import scala.scalajs.js.Dynamic.global
 import scala.scalajs.js.annotation.JSExport
 
+import me.enkode.physics.Drawable.HSLα
 import me.enkode.physics._
 
 object DropsWorld {
-  val fillBlack = Drawable.FillStyle("black")
-  val strokeBlack = Drawable.StrokeStyle("black", 2)
-
-  val gravity = 1.5
+  val gravity = 1.4
   val minR = 1.0
   val maxR = 3.5
 
@@ -18,18 +16,20 @@ object DropsWorld {
     v: Vector = (0, 0),
     a: Vector = (0d, gravity),
     r: Double = 2,
-    t: Long = System.currentTimeMillis())
+    t: Long = System.currentTimeMillis(),
+    stroke: Drawable.StrokeStyle = Drawable.StrokeStyle(HSLα(210, 60, 60, 0.2f), 1),
+    fill: Drawable.FillStyle = Drawable.FillStyle(HSLα(210, 60, 60, 0.5f)))
     extends Sprite {
     override def visible(width: Double, height: Double): Boolean = s.x < width && s.y < height
 
     override def draw(): Drawable = {
       val head = {
-        Drawable.Circle(s, r, fillBlack, strokeBlack)
+        Drawable.Circle(s, r, fill, stroke)
       }
 
       val tail = {
         val length = v * 2.9
-        Drawable.Line(s, s - Vector(length.x, length.y), strokeBlack.copy(size = r))
+        Drawable.Line(s, s - Vector(length.x, length.y), stroke.copy(size = r))
       }
       Drawable.CompoundDrawable(head, tail)
     }

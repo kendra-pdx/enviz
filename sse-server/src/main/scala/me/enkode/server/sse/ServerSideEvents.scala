@@ -11,5 +11,4 @@ trait ServerSideEvents {
   def publish(streamId: String, event: Event): Unit
 }
 
-trait ServerSideEventsImpl extends ServerSideEvents with EventSource with LazyLogging {
-}
+trait ServerSideEventsImpl extends ServerSideEvents with EventSource with LazyLogging

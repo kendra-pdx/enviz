@@ -23,16 +23,16 @@ class HtmlCanvas(id: String) extends Canvas {
     case Drawable.Circle(c, r, fill, stroke) ⇒
       context.beginPath()
       context.arc(c.x, c.y, r, 0, 2 * global.Math.PI)
-      context.fillStyle = fill.color
+      context.fillStyle = fill.color.css
       context.fill()
       context.lineWidth = stroke.size
-      context.strokeStyle = stroke.color
+      context.strokeStyle = stroke.color.css
       context.stroke()
 
     case Drawable.Line(from, to, stroke) ⇒
       context.beginPath()
       context.lineWidth = stroke.size
-      context.strokeStyle = stroke.color
+      context.strokeStyle = stroke.color.css
       context.moveTo(from.x, from.y)
       context.lineTo(to.x, to.y)
       context.stroke()

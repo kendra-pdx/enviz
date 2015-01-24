@@ -32,6 +32,7 @@ object Color {
     private def rgb2hsl(rgb: RGB): HSL = {
       import math._
       val (r, g, b) = (rgb.r, rgb.g, rgb.b)
+
       val colorMax = Array(r, g, b).max
       val colorMin = Array(r, g, b).min
       val chroma = colorMax - colorMin
@@ -58,15 +59,8 @@ object Color {
     }
 
     def asHSL: HSL = color match {
-      case hsl: HSL ⇒
-        hsl
-
-      case rgb: RGB ⇒
-        rgb2hsl(rgb)
+      case hsl: HSL ⇒ hsl
+      case rgb: RGB ⇒ rgb2hsl(rgb)
     }
   }
-}
-
-object Test extends App {
-  println(Blue.asHSL)
 }

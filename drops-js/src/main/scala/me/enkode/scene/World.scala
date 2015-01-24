@@ -1,7 +1,8 @@
-package me.enkode.physics
+package me.enkode.scene
 
 trait World {
   val canvas: Canvas
+
   var scenes: Seq[Scene]
   def queueNextIn(ms: Long)
   def frameRate: Int

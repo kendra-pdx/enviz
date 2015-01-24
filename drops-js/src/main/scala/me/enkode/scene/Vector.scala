@@ -1,4 +1,4 @@
-package me.enkode.physics
+package me.enkode.scene
 
 case class Vector(x: Double, y: Double) {
   import scala.math._

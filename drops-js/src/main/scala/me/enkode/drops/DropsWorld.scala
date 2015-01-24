@@ -3,8 +3,8 @@ package me.enkode.drops
 import scala.scalajs.js.Dynamic.global
 import scala.scalajs.js.annotation.JSExport
 
-import me.enkode.physics.Drawable.HSLα
-import me.enkode.physics._
+import me.enkode.scene._
+import me.enkode.scene.html.HtmlCanvas
 
 object DropsWorld {
   val gravity = 1.4
@@ -17,8 +17,8 @@ object DropsWorld {
     a: Vector = (0d, gravity),
     r: Double = 2,
     t: Long = System.currentTimeMillis(),
-    stroke: Drawable.StrokeStyle = Drawable.StrokeStyle(HSLα(210, 60, 60, 0.2f), 1),
-    fill: Drawable.FillStyle = Drawable.FillStyle(HSLα(210, 60, 60, 0.5f)))
+    stroke: Drawable.StrokeStyle = Drawable.StrokeStyle(HSL(210, 60, 60, 0.5f), 1),
+    fill: Drawable.FillStyle = Drawable.FillStyle(HSL(210, 60, 60, 0.5f)))
     extends Sprite {
     override def visible(width: Double, height: Double): Boolean = s.x < width && s.y < height
 
@@ -84,9 +84,16 @@ class DropsWorld(canvasId: String) extends World {
     import scala.util.Random
     val randomX = Random.nextDouble * canvas.width
     val randomR = minR + Random.nextDouble() * (maxR - minR)
-    scenes = Seq(scenes.head.copy(
-      sprites = scenes.head.sprites :+ FallingCircle(s = (randomX, 10.0), r = randomR)
-    ))
+    val colorAt: Float = System.currentTimeMillis().toFloat / 10000 % 1
+    val color: Color = Gradient.traffic.colorAt(colorAt)
+    scenes = scenes map { scene ⇒
+      val sprite = FallingCircle(
+        s = (randomX, 10.0),
+        r = randomR,
+        stroke = Drawable.StrokeStyle(color, 1),
+        fill = Drawable.FillStyle(color))
+      scene.copy(sprites = scene.sprites :+ sprite)
+    }
   }
 
   @JSExport

@@ -1,6 +1,6 @@
 package me.enkode
 
-package object physics {
+package object scene {
   implicit class DoubleTupleSugar(t: (Double, Double)) {
     def toVector = {
       val (x, y) = t
@@ -12,6 +12,12 @@ package object physics {
     def toVector = {
       val (x, y) = t
       Vector(x, y)
+    }
+  }
+
+  implicit class FloatSugar(f: Float) {
+    def between(min: Float, max: Float): Boolean = {
+      f >= min && f <= max
     }
   }
 

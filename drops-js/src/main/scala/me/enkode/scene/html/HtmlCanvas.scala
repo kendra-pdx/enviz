@@ -1,6 +1,6 @@
-package me.enkode.drops
+package me.enkode.scene.html
 
-import me.enkode.physics.{Canvas, Drawable}
+import me.enkode.scene.{Canvas, Drawable}
 
 class HtmlCanvas(id: String) extends Canvas {
   import scala.scalajs.js

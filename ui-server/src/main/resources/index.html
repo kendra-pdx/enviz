@@ -16,9 +16,10 @@
 </canvas>
 
 <script type="text/javascript">
-    var world = new DropsWorld("drops");
-    world.start();
-    world.startRaining(150, 4);
+    with(new DropsWorld("drops")) {
+        start();
+        startRaining(150, 4);
+    }
 </script>
 
 <div>

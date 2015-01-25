@@ -18,11 +18,9 @@ object ServerSideEventRoutes {
 }
 
 abstract class ServerSideEventRoutes(val actorSystem: ActorSystem)
-  extends Routes
-  with Directives
-  with ServerSideEvents
-  with SprayJsonSupport
-  with DefaultJsonProtocol {
+  extends Routes with Directives
+  with SprayJsonSupport with DefaultJsonProtocol
+  with ServerSideEvents {
 
   import me.enkode.server.sse.ServerSideEventRoutes._
 

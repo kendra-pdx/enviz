@@ -11,7 +11,7 @@ object DropsWorld {
   val minR = 1.0
   val maxR = 3.5
 
-  case class FallingCircle(
+  case class Raindrop(
     s: Vector,
     v: Vector = (0, 0),
     a: Vector = (0d, gravity),
@@ -31,6 +31,7 @@ object DropsWorld {
         val length = v * 2.9
         Drawable.Line(s, s - Vector(length.x, length.y), stroke.copy(size = r))
       }
+
       Drawable.CompoundDrawable(head, tail)
     }
 
@@ -56,12 +57,12 @@ object DropsWorld {
 class DropsWorld(canvasId: String) extends World {
   import me.enkode.drops.DropsWorld._
 
-  override def frameRate: Int = 100
+  override def frameRate = 100
 
   val drops = new Scene(sprites = Seq.empty[Sprite])
 
   override var scenes = Seq(drops)
-  override val canvas: Canvas = new HtmlCanvas(canvasId)
+  override val canvas = new HtmlCanvas(canvasId)
 
   var running = false
   override def queueNextIn(ms: Long): Unit = {
@@ -84,10 +85,10 @@ class DropsWorld(canvasId: String) extends World {
     import scala.util.Random
     val randomX = Random.nextDouble * canvas.width
     val randomR = minR + Random.nextDouble() * (maxR - minR)
-    val colorAt: Float = System.currentTimeMillis().toFloat / 10000 % 1
-    val color: Color = Gradient.traffic.colorAt(colorAt)
+    val colorAt = System.currentTimeMillis().toFloat / 10000 % 1
+    val color = Gradient.traffic.colorAt(colorAt)
     scenes = scenes map { scene ⇒
-      val sprite = FallingCircle(
+      val sprite = Raindrop(
         s = (randomX, 10.0),
         r = randomR,
         stroke = Drawable.StrokeStyle(color, 1),

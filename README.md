@@ -2,7 +2,7 @@ Event Visualizations
 ====================
 
 ```bash
-sbt "~eventviz/re-start"
+sbt "~enviz/re-start"
 ```
 
 Browse to `localhost:8080`
